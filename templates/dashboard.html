@@ -1,0 +1,342 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | StudyPulse{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+    <!-- Top Workspace Greeting & Quick Action -->
+    <div class="dashboard-header-panel">
+        <div class="header-left">
+            <div class="date-chip" id="currentDateDisplay">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span id="dateText">Academic Session</span>
+            </div>
+            <h1 class="header-title">
+                Study Space of <span class="gradient-text">{{ g.user.username }}</span>
+            </h1>
+            <p class="header-sub">Organize your assignments, track deadlines, and monitor your study velocity.</p>
+        </div>
+
+        <div class="header-right">
+            <button class="btn btn-primary btn-glow" onclick="openTaskModal()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>Add Task</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Live Performance & Task Metrics Grid -->
+    <div class="metrics-grid">
+        <div class="metric-card" id="metricCardTotal">
+            <div class="metric-icon-box icon-indigo">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+            </div>
+            <div class="metric-details">
+                <span class="metric-label">Total Tasks</span>
+                <div class="metric-num-row">
+                    <span class="metric-number" id="statTotal">0</span>
+                    <span class="metric-tag">enrolled</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="metric-card" id="metricCardPending">
+            <div class="metric-icon-box icon-amber">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+            </div>
+            <div class="metric-details">
+                <span class="metric-label">In Progress</span>
+                <div class="metric-num-row">
+                    <span class="metric-number text-amber" id="statPending">0</span>
+                    <span class="metric-tag tag-amber">active</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="metric-card" id="metricCardCompleted">
+            <div class="metric-icon-box icon-emerald">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
+            <div class="metric-details">
+                <span class="metric-label">Completed</span>
+                <div class="metric-num-row">
+                    <span class="metric-number text-emerald" id="statCompleted">0</span>
+                    <span class="metric-tag tag-emerald">done</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="metric-card" id="metricCardOverdue">
+            <div class="metric-icon-box icon-rose">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+            </div>
+            <div class="metric-details">
+                <span class="metric-label">Overdue</span>
+                <div class="metric-num-row">
+                    <span class="metric-number text-rose" id="statOverdue">0</span>
+                    <span class="metric-tag tag-rose">urgent</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="metric-card metric-card-wide">
+            <div class="progress-top-row">
+                <span class="metric-label">Completion Velocity</span>
+                <span class="progress-num" id="statRate">0%</span>
+            </div>
+            <div class="progress-track-bar">
+                <div class="progress-fill-bar" id="progressFill" style="width: 0%;"></div>
+            </div>
+            <span class="progress-subtext" id="progressStatusText">No active tasks logged yet</span>
+        </div>
+    </div>
+
+    <!-- Filter Toolbar -->
+    <div class="toolbar-card">
+        <div class="search-field-container">
+            <svg class="search-field-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input 
+                type="text" 
+                id="searchInput" 
+                class="search-field-input" 
+                placeholder="Search tasks by title, subject or description..."
+                autocomplete="off"
+            >
+            <button id="clearSearchBtn" class="clear-input-btn" title="Clear search" style="display: none;">✕</button>
+        </div>
+
+        <div class="toolbar-filters-row">
+            <!-- Modern Pill Status Tabs -->
+            <div class="nav-pill-tabs" id="statusTabs" role="tablist">
+                <button class="pill-tab active" data-status="all">
+                    <span>All</span>
+                    <span class="pill-badge" id="countAll">0</span>
+                </button>
+                <button class="pill-tab" data-status="Pending">
+                    <span>Pending</span>
+                    <span class="pill-badge badge-amber" id="countPending">0</span>
+                </button>
+                <button class="pill-tab" data-status="Completed">
+                    <span>Completed</span>
+                    <span class="pill-badge badge-emerald" id="countCompleted">0</span>
+                </button>
+                <button class="pill-tab" data-status="Overdue">
+                    <span>Overdue</span>
+                    <span class="pill-badge badge-rose" id="countOverdue">0</span>
+                </button>
+            </div>
+
+            <!-- Sleek Dropdowns -->
+            <div class="dropdown-filter-group">
+                <div class="select-box">
+                    <select id="subjectFilter" class="dark-select">
+                        <option value="all">All Subjects</option>
+                    </select>
+                </div>
+
+                <div class="select-box">
+                    <select id="priorityFilter" class="dark-select">
+                        <option value="all">All Priorities</option>
+                        <option value="High">High Priority 🔥</option>
+                        <option value="Medium">Medium Priority</option>
+                        <option value="Low">Low Priority</option>
+                    </select>
+                </div>
+
+                <div class="select-box">
+                    <select id="sortBy" class="dark-select">
+                        <option value="due_date_asc">Earliest Due Date</option>
+                        <option value="due_date_desc">Latest Due Date</option>
+                        <option value="priority_desc">Priority (High to Low)</option>
+                        <option value="created_at_desc">Recently Created</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Tasks Section -->
+    <div class="tasks-workspace">
+        <div class="workspace-meta-bar">
+            <div class="meta-title-group">
+                <h2 class="workspace-section-title">Assignments & Goals</h2>
+                <span class="tasks-counter-badge" id="visibleTasksCount">0 tasks</span>
+            </div>
+        </div>
+
+        <div id="taskListContainer" class="task-cards-stack">
+            <!-- Dynamic task items populated by app.js -->
+        </div>
+
+        <!-- Clean Modern Empty State -->
+        <div id="emptyState" class="clean-empty-state" style="display: none;">
+            <div class="empty-icon-glow">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                    <path d="M2 17l10 5 10-5"></path>
+                    <path d="M2 12l10 5 10-5"></path>
+                </svg>
+            </div>
+            <h3 class="empty-headline" id="emptyTitle">Your study workspace is clear</h3>
+            <p class="empty-desc" id="emptyText">No tasks scheduled yet. Create your first assignment or exam goal to start tracking progress.</p>
+            <button class="btn btn-primary btn-glow" onclick="openTaskModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>Add Your First Task</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Task Modal (Add & Edit) -->
+<div id="taskModal" class="modal-backdrop-dark" style="display: none;">
+    <div class="modal-window">
+        <div class="modal-head">
+            <div class="modal-head-title-row">
+                <div class="modal-icon-badge" id="modalBadgeIcon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                </div>
+                <h3 class="modal-window-title" id="taskModalTitle">Add New Task</h3>
+            </div>
+            <button class="modal-close-btn" onclick="closeTaskModal()" aria-label="Close modal">✕</button>
+        </div>
+
+        <form id="taskForm" onsubmit="handleTaskFormSubmit(event)">
+            <input type="hidden" id="taskId" name="id" value="">
+
+            <div class="form-item">
+                <label for="taskTitle" class="dark-label">Task Title <span class="required-star">*</span></label>
+                <input 
+                    type="text" 
+                    id="taskTitle" 
+                    name="title" 
+                    class="dark-input" 
+                    placeholder="e.g. Chapter 4 Practice Problems, Biology Lab Write-up" 
+                    required 
+                    maxlength="150"
+                >
+            </div>
+
+            <div class="form-grid-2">
+                <div class="form-item">
+                    <label for="taskSubject" class="dark-label">Subject / Course</label>
+                    <input 
+                        type="text" 
+                        id="taskSubject" 
+                        name="subject" 
+                        class="dark-input" 
+                        placeholder="e.g. Mathematics, Physics" 
+                        required
+                    >
+                </div>
+
+                <div class="form-item">
+                    <label for="taskPriority" class="dark-label">Priority</label>
+                    <select id="taskPriority" name="priority" class="dark-input dark-select-field">
+                        <option value="Low">Low Priority</option>
+                        <option value="Medium" selected>Medium Priority</option>
+                        <option value="High">High Priority 🔥</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-grid-2">
+                <div class="form-item">
+                    <label for="taskDueDate" class="dark-label">Due Date <span class="required-star">*</span></label>
+                    <input 
+                        type="date" 
+                        id="taskDueDate" 
+                        name="due_date" 
+                        class="dark-input" 
+                        required
+                    >
+                </div>
+
+                <div class="form-item" id="statusFieldGroup" style="display: none;">
+                    <label for="taskStatus" class="dark-label">Status</label>
+                    <select id="taskStatus" name="status" class="dark-input dark-select-field">
+                        <option value="Pending">Pending</option>
+                        <option value="Completed">Completed ✅</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-item">
+                <label for="taskDescription" class="dark-label">Description / Instructions</label>
+                <textarea 
+                    id="taskDescription" 
+                    name="description" 
+                    class="dark-input dark-textarea" 
+                    placeholder="Optional notes, requirements, page numbers, or links..."
+                    rows="3"
+                ></textarea>
+            </div>
+
+            <div class="modal-actions-row">
+                <button type="button" class="btn btn-ghost" onclick="closeTaskModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-glow" id="saveTaskBtn">
+                    <span id="saveBtnText">Create Task</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal-backdrop-dark" style="display: none;">
+    <div class="modal-window modal-window-sm">
+        <div class="modal-head">
+            <div class="danger-icon-circle">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+            </div>
+            <h3 class="modal-window-title">Delete Task?</h3>
+            <button class="modal-close-btn" onclick="closeDeleteModal()" aria-label="Close modal">✕</button>
+        </div>
+        <div class="modal-body-text">
+            <p>Are you sure you want to permanently delete <strong id="deleteTaskTitle" class="highlight-delete">this task</strong>? This action cannot be undone.</p>
+        </div>
+        <div class="modal-actions-row">
+            <button type="button" class="btn btn-ghost" onclick="closeDeleteModal()">Cancel</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn" onclick="confirmTaskDeletion()">
+                <span>Delete Forever</span>
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

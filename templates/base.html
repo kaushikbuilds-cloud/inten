@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" class="dark-theme">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#090d16">
+    <title>{% block title %}StudyPulse | Student Task Workspace{% endblock %}</title>
+    <!-- Modern Typography: Plus Jakarta Sans & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Custom Dark Design System -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <!-- Glowing Top Navbar -->
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('dashboard') }}" class="brand-logo" title="StudyPulse Workspace">
+                <div class="logo-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                        <path d="M2 17l10 5 10-5"></path>
+                        <path d="M2 12l10 5 10-5"></path>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <div class="brand-title-row">
+                        <span class="brand-title">StudyPulse</span>
+                        <span class="status-indicator-dot" title="Live Sync Active"></span>
+                    </div>
+                    <span class="brand-badge">Student Workspace</span>
+                </div>
+            </a>
+
+            <div class="nav-actions">
+                {% if g.user %}
+                    <button id="openNewTaskBtn" class="btn btn-primary btn-sm btn-glow" onclick="openTaskModal()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span>New Task</span>
+                    </button>
+
+                    <div class="user-profile">
+                        <div class="avatar-ring">
+                            <div class="avatar" title="{{ g.user.username }}">
+                                {{ g.user.username[0]|upper }}
+                            </div>
+                        </div>
+                        <div class="user-meta">
+                            <span class="user-name">{{ g.user.username }}</span>
+                            <span class="user-email">{{ g.user.email }}</span>
+                        </div>
+                        <a href="{{ url_for('auth.logout') }}" class="btn-logout" title="Sign out of account">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="auth-links">
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-ghost">Sign In</a>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-glow">Get Started</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Flash Notifications Container -->
+    <div class="flash-messages-container" id="flashContainer">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-toast flash-{{ category }}">
+                        <span class="toast-dot"></span>
+                        <span class="toast-msg">{{ message }}</span>
+                        <button class="toast-close" onclick="this.parentElement.remove()" aria-label="Dismiss">✕</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Workspace Container -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Floating Toast Notification Stack -->
+    <div id="toastContainer" class="toast-floating-container"></div>
+
+    <!-- Client Script -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

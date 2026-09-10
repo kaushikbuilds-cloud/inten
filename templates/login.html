@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In | StudyPulse{% endblock %}
+{% block body_class %}dark-auth-body{% endblock %}
+
+{% block content %}
+<div class="auth-page-wrapper">
+    <div class="auth-card-dark">
+        <div class="auth-card-header">
+            <div class="auth-pill-badge">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 14 14"></polyline>
+                </svg>
+                <span>Student Academic Portal</span>
+            </div>
+            <h1 class="auth-card-title">Welcome Back</h1>
+            <p class="auth-card-subtitle">Sign in to manage your coursework, deadlines, and study goals</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.login', next=request.args.get('next')) }}" class="auth-form-body" id="loginForm">
+            <div class="form-item">
+                <label for="identifier" class="dark-label">Username or Email</label>
+                <div class="input-with-icon">
+                    <svg class="field-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <input 
+                        type="text" 
+                        name="identifier" 
+                        id="identifier" 
+                        class="dark-input with-left-icon" 
+                        placeholder="e.g. alex_mit or alex@campus.edu" 
+                        required 
+                        autofocus
+                    >
+                </div>
+            </div>
+
+            <div class="form-item">
+                <div class="label-split-row">
+                    <label for="password" class="dark-label">Password</label>
+                </div>
+                <div class="input-with-icon">
+                    <svg class="field-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    <input 
+                        type="password" 
+                        name="password" 
+                        id="password" 
+                        class="dark-input with-left-icon" 
+                        placeholder="••••••••" 
+                        required
+                    >
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg btn-glow" id="loginSubmitBtn">
+                <span>Sign In to Workspace</span>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </button>
+        </form>
+
+        <div class="auth-card-footer">
+            <p>New to StudyPulse? <a href="{{ url_for('auth.register') }}" class="link-cyan">Create a free student account</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
