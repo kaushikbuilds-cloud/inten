@@ -18,6 +18,11 @@ env/
 test_output.txt
 *.log
 
+# Environment variables
+.env
+.env.*
+.env.local
+
 # IDE & OS files
 .vscode/
 .idea/

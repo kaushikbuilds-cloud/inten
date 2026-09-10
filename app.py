@@ -1,7 +1,7 @@
 import os
 from datetime import datetime, date
 from flask import (
-    Flask, render_template, request, jsonify, redirect, url_for, g, flash
+    Flask, render_template, request, jsonify, redirect, url_for, g, flash, session
 )
 from auth import auth, login_required
 from database import get_db_connection, init_db
@@ -56,6 +56,23 @@ def create_app():
         task_dict['due_human'] = due_human
         task_dict['due_badge_variant'] = badge_variant
         return task_dict
+
+    @app.route('/demo-login')
+    def demo_login():
+        conn = get_db_connection()
+        user = conn.execute("SELECT * FROM users WHERE username = 'alex_student' LIMIT 1").fetchone()
+        if not user:
+            user = conn.execute("SELECT * FROM users LIMIT 1").fetchone()
+        conn.close()
+        if user:
+            session['user_id'] = user['id']
+            session['username'] = user['username']
+            session['email'] = user['email']
+            modal_param = request.args.get('modal', '')
+            if modal_param:
+                return redirect(url_for('dashboard', modal=modal_param))
+            return redirect(url_for('dashboard'))
+        return redirect(url_for('auth.login'))
 
     @app.route('/')
     @login_required

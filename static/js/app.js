@@ -104,6 +104,10 @@ function initDashboard() {
     // Initial fetch
     loadStats();
     loadTasks();
+
+    if (window.location.search.includes('modal=new')) {
+        setTimeout(() => openTaskModal(), 350);
+    }
 }
 
 /**
